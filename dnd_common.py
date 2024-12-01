@@ -40,6 +40,14 @@ def createLocalSpellData():
 		data = response
 	else:
 		response = requests.request("GET",base_url,headers=headers,data=payload)
+			
+		if response.status_code != 200:
+			# Network request failed; assume that there has
+			# been catastrophic failure and end program early.
+			# User can always restart download where they left off
+			response.raise_for_status()
+			return False
+
 		data = response.json()
 		time.sleep(5)
 
@@ -55,6 +63,14 @@ def createLocalSpellData():
 			print(f"Spell {i+1} of {data['count']} already downloaded; skipping")
 		else:
 			resp = requests.request("GET",curURL,headers=headers,data=payload)
+
+			if resp.status_code != 200:
+				# Network request failed; assume that there has
+				# been catastrophic failure and end program early.
+				# User can always restart download where they left off
+				resp.raise_for_status()
+				return False
+
 			curData = resp.json()
 
 			item["desc"] = curData["desc"]
@@ -106,3 +122,7 @@ def outputSpell(curSpell):
 
 	for line in curSpell["desc"]:
 		print(f"{line}\n")
+
+
+if __name__ == "__main__":
+	print(createLocalSpellData())
