@@ -1,7 +1,8 @@
 import sys
 import os.path
 import json
-from dnd_common import createLocalSpellData, outputSpell
+# from dnd_common import createLocalSpellData, outputSpell
+from dnd_common import getSpellData, outputSpell
 
 ###################################################################
 # spell-search.py                                                 #
@@ -17,17 +18,8 @@ def searchSpell(spellData,searchString):
 			outputSpell(spell)
 
 def main():
-	if os.path.exists("spells.json"):
-		spell_data = json.load( open("spells.json","r") )
-
-		if spell_data["countDownloaded"] != spell_data["count"]:
-			print("Incomplete Local Spell Data Found! Initiating Database Build...")
-			createLocalSpellData()
-		else:
-			searchSpell(spell_data, ' '.join(sys.argv[1:]).lower())
-	else:
-		print("No Local Spell Data Found! Initiating Database Build...")
-		createLocalSpellData()
+	spell_data = getSpellData()
+	searchSpell(spell_data, ' '.join(sys.argv[1:]).lower())
 
 
 if __name__ == "__main__":

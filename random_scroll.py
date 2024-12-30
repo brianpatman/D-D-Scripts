@@ -2,7 +2,7 @@ import os.path
 import random
 import time
 import json
-from dnd_common import createLocalSpellData, outputSpell
+from dnd_common import getSpellData, outputSpell
 
 ###################################################################
 # random-scroll.py                                                #
@@ -41,18 +41,8 @@ def randomScroll(spell_data,max_lvl=None,dndClass=None):
 	
 
 def main():
-	if os.path.exists("spells.json"):
-		spell_data = json.load( open("spells.json","r") )
-
-		if spell_data["countDownloaded"] != spell_data["count"]:
-			print("Incomplete Local Spell Data Found! Initiating Database Build...")
-			createLocalSpellData()
-		else:
-			randomScroll(spell_data,3,"Cleric")
-	else:
-		print("No Local Spell Data Found! Initiating Database Build...")
-		createLocalSpellData()
-
+	spell_data = getSpellData()
+	randomScroll(spell_data,3,"Cleric")
 
 
 if __name__ == "__main__":

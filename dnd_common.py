@@ -10,6 +10,27 @@ import requests
 # all of the D&D 5e scripts.                                      #
 ###################################################################
 
+
+def getSpellData():
+	script_dir = os.path.dirname(os.path.realpath(__file__))
+	spell_file_location = os.path.join(script_dir,"spells.json")
+
+	if os.path.exists(spell_file_location):
+		spell_data = json.load( open(spell_file_location,"r") )
+
+		if spell_data["countDownloaded"] != spell_data["count"]:
+			print("Incomplete Local Spell Data Found! Initiating Database Build...")
+			createLocalSpellData()
+		else:
+			return spell_data
+	else:
+		print("No Local Spell Data Found! Initiating Database Build...")
+		createLocalSpellData()
+
+	spell_data = json.load( open(spell_file_location,"r") )
+	return spell_data
+
+
 def createLocalSpellData():
 	"""
 		Used to interact with the D&D 5e API and download all 
@@ -21,6 +42,10 @@ def createLocalSpellData():
 		Returns True if it successfully creates the file
 	"""
 	base_url = "https://www.dnd5eapi.co/api/spells/"
+	script_dir = os.path.dirname(os.path.realpath(__file__))
+	spell_file_location = os.path.join(script_dir,"spells.json")
+
+	URL_READ_DELAY = 3
 
 	payload = {}
 	headers = {
@@ -29,8 +54,8 @@ def createLocalSpellData():
 
 	data = None
 
-	if os.path.exists("spells.json"):
-		response = json.load( open("spells.json","r") )
+	if os.path.exists(spell_file_location):
+		response = json.load( open(spell_file_location,"r") )
 
 		# If this is true, all spell data is already downloaded
 		# so we shouldn't bother doing it again
@@ -49,7 +74,8 @@ def createLocalSpellData():
 			return False
 
 		data = response.json()
-		time.sleep(5)
+		time.sleep(URL_READ_DELAY)
+
 
 	for i,item in enumerate(data["results"]):
 		curURL = base_url + item['index']
@@ -86,12 +112,11 @@ def createLocalSpellData():
 			item["classes"] = curClasses
 			data["countDownloaded"] = i+1
 
-			with open("spells.json","w") as spellFile:
+			with open(spell_file_location,"w") as spellFile:
 				spellFile.write(json.dumps(data))
 
 			print(f"Downloaded spell {i+1} of {data['count']}")
-			time.sleep(5)
-
+			time.sleep(URL_READ_DELAY)
 
 	return True
 
